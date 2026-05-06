@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReachFinder — Free HR Contact Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080c0a;
+  --bg2:      #0e1410;
+  --bg3:      #141c16;
+  --bg4:      #1a251c;
+  --border:   #1e2b20;
+  --border2:  #263329;
+  --green:    #22c55e;
+  --green-dim:#16a34a;
+  --green-faint: rgba(34,197,94,.07);
+  --text:     #e2ede5;
+  --text2:    #7a9880;
+  --text3:    #445c48;
+  --yellow:   #eab308;
+  --blue:     #38bdf8;
+  --red:      #f87171;
+  --mono:     'DM Mono', monospace;
+  --sans:     'Syne', sans-serif;
+  --r:        10px;
+  --r-sm:     6px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34,197,94,.08) 0%, transparent 60%);
+}
+
+/* ── HEADER ────────────────────────────────── */
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(8,12,10,.8);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark {
+  width: 28px; height: 28px;
+  border: 1px solid var(--green);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.brand-mark::before {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: ping 2s ease-in-out infinite;
+}
+@keyframes ping {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: .4; }
+}
+.brand-name { font-size: 15px; font-weight: 700; letter-spacing: -.3px; }
+.brand-name span { color: var(--green); }
+.badge-free {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  border-radius: 20px;
+  letter-spacing: .05em;
+}
+.nav-links { display: flex; gap: 6px; }
+.nav-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  transition: all .15s;
+  text-decoration: none;
+}
+.nav-btn:hover { border-color: var(--green); color: var(--green); }
+.nav-btn.primary { background: var(--green); color: #000; border-color: var(--green); font-weight: 600; }
+.nav-btn.primary:hover { background: var(--green-dim); }
+
+/* ── LAYOUT ────────────────────────────────── */
+.app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 57px); }
+
+/* ── SIDEBAR ───────────────────────────────── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  background: var(--bg2);
+}
+.sb-section { margin-bottom: 22px; }
+.sb-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  display: block;
+  margin-bottom: 5px;
+}
+input[type=text], input[type=password], input[type=email], select, textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 9px 11px;
+  outline: none;
+  transition: border-color .15s;
+  margin-bottom: 12px;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--green); }
+select option { background: var(--bg3); }
+textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+.api-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.api-row:hover { border-color: var(--border); }
+.api-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.api-dot.ok { background: var(--green); }
+.api-dot.warn { background: var(--yellow); }
+.api-dot.off { background: var(--text3); }
+.api-label { font-family: var(--mono); font-size: 11px; color: var(--text2); flex: 1; }
+.api-status { font-family: var(--mono); font-size: 10px; }
+.api-status.ok { color: var(--green); }
+.api-status.warn { color: var(--yellow); }
+.api-status.off { color: var(--text3); }
+
+/* ── SEARCH BUTTON ─────────────────────────── */
+.btn-search {
+  width: 100%;
+  padding: 12px;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: .02em;
+  margin-bottom: 14px;
+}
+.btn-search:hover { background: var(--green-dim); }
+.btn-search:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; }
+
+/* ── QUOTA METERS ──────────────────────────── */
+.quota-item { margin-bottom: 10px; }
+.quota-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.quota-name { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+.quota-val { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.quota-bar { height: 3px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+.quota-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
+.quota-fill.green { background: var(--green); }
+.quota-fill.yellow { background: var(--yellow); }
+.quota-fill.red { background: var(--red); }
+
+/* ── MAIN ──────────────────────────────────── */
+.main { padding: 24px; overflow-y: auto; }
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+.main-title { font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
+.main-sub { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 4px; }
+.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-sm {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 6px 12px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-sm:hover { border-color: var(--green); color: var(--green); }
+
+/* ── STATS ─────────────────────────────────── */
+.stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+.stat {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.stat.has-data::before { opacity: 1; }
+.stat-n {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.stat-n.green { color: var(--green); }
+.stat-l { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 5px; letter-spacing: .05em; }
+
+/* ── LOG BOX ───────────────────────────────── */
+.log-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  max-height: 140px;
+  overflow-y: auto;
+  display: none;
+  font-family: var(--mono);
+}
+.log-box.active { display: block; }
+.log-line { font-size: 11px; color: var(--text3); padding: 2px 0; display: flex; gap: 10px; }
+.log-ts { color: var(--text3); min-width: 52px; flex-shrink: 0; }
+.log-msg { flex: 1; }
+.log-line.success .log-msg { color: var(--green); }
+.log-line.info .log-msg { color: var(--blue); }
+.log-line.warn .log-msg { color: var(--yellow); }
+.log-line.error .log-msg { color: var(--red); }
+
+/* ── FILTER BAR ────────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-label { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.fpill {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 11px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text3);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.fpill:hover { border-color: var(--green); color: var(--green); }
+.fpill.on { background: var(--green); color: #000; border-color: var(--green); font-weight: 600; }
+
+/* ── GRID ──────────────────────────────────── */
+.results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 12px; }
+
+/* ── CARD ──────────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  transition: border-color .2s, transform .2s;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.card-glow {
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  opacity: .04;
+  pointer-events: none;
+}
+.card-top { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.avatar {
+  width: 38px; height: 38px; min-width: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+}
+.c-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.c-title { font-family: var(--mono); font-size: 10px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+.c-company { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+.tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+.tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid;
+  letter-spacing: .03em;
+}
+.t-city  { border-color: rgba(56,189,248,.3); color: var(--blue);   background: rgba(56,189,248,.06); }
+.t-signal{ border-color: rgba(34,197,94,.3);  color: var(--green);  background: rgba(34,197,94,.06); }
+.t-source{ border-color: rgba(234,179,8,.3);  color: var(--yellow); background: rgba(234,179,8,.06); }
+.t-api   { border-color: rgba(248,113,113,.3);color: var(--red);    background: rgba(248,113,113,.06); }
+
+.divider { height: 1px; background: var(--border); margin: 10px 0; }
+.info-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.info-row svg { opacity: .35; flex-shrink: 0; }
+.info-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  word-break: break-all;
+  flex: 1;
+}
+.vstatus {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.vstatus.verified { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+.vstatus.pattern  { background: rgba(234,179,8,.1);  color: var(--yellow); border: 1px solid rgba(234,179,8,.25); }
+.vstatus.apollo   { background: rgba(56,189,248,.1); color: var(--blue);   border: 1px solid rgba(56,189,248,.25); }
+
+.card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.btn-card {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 5px 11px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all .15s;
+  border: 1px solid;
+  text-decoration: none;
+  display: inline-block;
+}
+.bc-li   { border-color: rgba(56,189,248,.4); color: var(--blue); background: transparent; }
+.bc-li:hover { background: rgba(56,189,248,.08); }
+.bc-copy { border-color: var(--border2); color: var(--text2); background: transparent; }
+.bc-copy:hover { border-color: var(--green); color: var(--green); }
+.bc-msg  { border-color: var(--border2); color: var(--text2); background: transparent; }
+.bc-msg:hover { border-color: var(--yellow); color: var(--yellow); }
+
+/* ── EMPTY STATE ───────────────────────────── */
+.empty {
+  grid-column: 1/-1;
+  padding: 80px 20px;
+  text-align: center;
+}
+.empty-icon { font-size: 36px; margin-bottom: 16px; opacity: .6; }
+.empty h3 { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
+.empty p { font-family: var(--mono); font-size: 12px; color: var(--text3); line-height: 1.7; }
+
+/* ── MODAL ─────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 24px;
+  width: 540px;
+  max-width: 94vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.modal p  { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 16px; }
+.modal textarea {
+  width: 100%;
+  min-height: 200px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.modal-close { background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); padding: 8px 14px; border-radius: var(--r-sm); cursor: pointer; font-family: var(--mono); font-size: 11px; }
+.modal-copy  { background: var(--green); border: none; color: #000; padding: 8px 16px; border-radius: var(--r-sm); cursor: pointer; font-family: var(--sans); font-size: 12px; font-weight: 700; }
+
+/* ── API CONFIG MODAL ──────────────────────── */
+.api-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 28px;
+  width: 560px;
+  max-width: 94vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.api-modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.api-modal .desc { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 20px; line-height: 1.7; }
+.api-block {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.api-block-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.api-block-title h4 { font-size: 13px; font-weight: 600; }
+.api-block-title .free-pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid var(--green);
+  color: var(--green);
+}
+.api-block-title .paid-pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid var(--yellow);
+  color: var(--yellow);
+}
+.api-block p { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 10px; line-height: 1.5; }
+.api-block a { color: var(--blue); text-decoration: none; }
+.api-block a:hover { text-decoration: underline; }
+.api-block input { margin-bottom: 0; }
+.save-keys { width: 100%; padding: 11px; background: var(--green); border: none; color: #000; font-family: var(--sans); font-size: 13px; font-weight: 700; border-radius: var(--r-sm); cursor: pointer; margin-top: 16px; }
+
+/* ── LOADING ANIM ──────────────────────────── */
+@keyframes shimmer { 0%,100%{opacity:.3} 50%{opacity:1} }
+.shimmer { animation: shimmer 1.5s ease-in-out infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin .8s linear infinite; display: inline-block; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <span class="brand-name">Reach<span>Finder</span></span>
+    <span class="badge-free">100% FREE</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="openApiModal()">⚙ API Keys</button>
+    <button class="nav-btn" onclick="exportCSV()" id="exportTopBtn" style="display:none">⬇ Export CSV</button>
+    <a class="nav-btn" href="https://github.com/Gunachanthiran" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-section">
+      <div class="sb-title">Search Params</div>
+      <label>Role / Job Title</label>
+      <input type="text" id="s-role" value="SDET / Software Test Engineer" placeholder="e.g. QA Engineer">
+      <label>City</label>
+      <select id="s-city">
+        <option>Bangalore</option>
+        <option>Chennai</option>
+        <option>Hyderabad</option>
+        <option>Pune</option>
+        <option>Mumbai</option>
+        <option>Delhi NCR</option>
+        <option>All India</option>
+      </select>
+      <label>Industry</label>
+      <select id="s-industry">
+        <option>IT Services & Consulting</option>
+        <option>Product / SaaS Companies</option>
+        <option>Fintech & Banking Tech</option>
+        <option>E-commerce & Startups</option>
+        <option>All Industries</option>
+      </select>
+      <label>Your Key Skills</label>
+      <textarea id="s-skills">Selenium WebDriver, Playwright, Python BDD (Behave/Cucumber), TestComplete, Appium, Java, TypeScript, Allure Reports</textarea>
+      <label>Experience</label>
+      <select id="s-exp">
+        <option>2 years</option>
+        <option>3 years</option>
+        <option>4-5 years</option>
+        <option>5+ years</option>
+      </select>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">API Status</div>
+      <div class="api-row" onclick="openApiModal()">
+        <div class="api-dot" id="dot-gemini"></div>
+        <span class="api-label">Gemini AI (Search)</span>
+        <span class="api-status" id="lbl-gemini">not set</span>
+      </div>
+      <div class="api-row" onclick="openApiModal()">
+        <div class="api-dot" id="dot-hunter"></div>
+        <span class="api-label">Hunter.io (Email)</span>
+        <span class="api-status" id="lbl-hunter">not set</span>
+      </div>
+      <div class="api-row" onclick="openApiModal()">
+        <div class="api-dot" id="dot-apollo"></div>
+        <span class="api-label">Apollo.io (Contacts)</span>
+        <span class="api-status" id="lbl-apollo">not set</span>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Monthly Quota</div>
+      <div class="quota-item">
+        <div class="quota-head">
+          <span class="quota-name">Gemini searches</span>
+          <span class="quota-val" id="q-gemini-val">0 / ∞ free</span>
+        </div>
+        <div class="quota-bar"><div class="quota-fill green" id="q-gemini-bar" style="width:0%"></div></div>
+      </div>
+      <div class="quota-item">
+        <div class="quota-head">
+          <span class="quota-name">Hunter.io lookups</span>
+          <span class="quota-val" id="q-hunter-val">0 / 25 free</span>
+        </div>
+        <div class="quota-bar"><div class="quota-fill yellow" id="q-hunter-bar" style="width:0%"></div></div>
+      </div>
+      <div class="quota-item">
+        <div class="quota-head">
+          <span class="quota-name">Apollo lookups</span>
+          <span class="quota-val" id="q-apollo-val">0 / 50 free</span>
+        </div>
+        <div class="quota-bar"><div class="quota-fill green" id="q-apollo-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <button class="btn-search" id="searchBtn" onclick="startSearch()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Find HR Contacts
+    </button>
+
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;margin-bottom:10px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:8px;letter-spacing:.05em">HOW TO MAKE IT FREE FOREVER</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7">
+        1. Get <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">Gemini API key</a> (free, no limit)<br>
+        2. Get <a href="https://hunter.io/users/sign_up" target="_blank" style="color:var(--blue)">Hunter.io key</a> (25 free/mo)<br>
+        3. Get <a href="https://developer.apollo.io" target="_blank" style="color:var(--blue)">Apollo.io key</a> (50 free/mo)<br>
+        4. Host on <a href="https://pages.github.com" target="_blank" style="color:var(--blue)">GitHub Pages</a> (free forever)<br>
+        5. Click ⚙ API Keys above to save
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title" id="main-title">HR Contact Intelligence</div>
+        <div class="main-sub" id="main-sub">Configure search parameters → click Find HR Contacts</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-sm" onclick="exportCSV()" id="exportBtn" style="display:none">⬇ Export CSV</button>
+        <button class="btn-sm" onclick="clearAll()">✕ Clear</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat" id="st0"><div class="stat-n" id="s-found">0</div><div class="stat-l">CONTACTS FOUND</div></div>
+      <div class="stat" id="st1"><div class="stat-n green" id="s-verified">0</div><div class="stat-l">VERIFIED EMAILS</div></div>
+      <div class="stat" id="st2"><div class="stat-n" id="s-companies">0</div><div class="stat-l">COMPANIES</div></div>
+      <div class="stat" id="st3"><div class="stat-n" id="s-cities">0</div><div class="stat-l">CITIES</div></div>
+    </div>
+
+    <div class="log-box" id="logBox"></div>
+
+    <div class="filter-bar" id="filterBar" style="display:none">
+      <span class="filter-label">city:</span>
+      <button class="fpill on" onclick="setFilter('all',this)">all</button>
+      <button class="fpill" onclick="setFilter('bangalore',this)">blr</button>
+      <button class="fpill" onclick="setFilter('chennai',this)">chn</button>
+      <button class="fpill" onclick="setFilter('hyderabad',this)">hyd</button>
+      <button class="fpill" onclick="setFilter('pune',this)">pnq</button>
+      <span class="filter-label" style="margin-left:8px">email:</span>
+      <button class="fpill" onclick="setFilter('verified',this)">verified only</button>
+      <button class="fpill" onclick="setFilter('linkedin',this)">has linkedin</button>
+    </div>
+
+    <div class="results-grid" id="grid">
+      <div class="empty">
+        <div class="empty-icon">🎯</div>
+        <h3>Ready to find contacts</h3>
+        <p>Set up your API keys using the ⚙ button above,<br>then configure your search and click <strong style="color:var(--green)">Find HR Contacts</strong>.<br><br>Works in demo mode even without API keys.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MSG MODAL -->
+<div class="modal-bg" id="msgModal">
+  <div class="modal">
+    <h3>Outreach Message</h3>
+    <p id="msg-sub">Personalized for this contact</p>
+    <textarea id="msg-text"></textarea>
+    <div class="modal-actions">
+      <button class="modal-close" onclick="closeModal('msgModal')">Close</button>
+      <button class="modal-copy" onclick="copyMsg()">Copy Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- API CONFIG MODAL -->
+<div class="modal-bg" id="apiModal">
+  <div class="api-modal">
+    <h3>🔑 API Key Configuration</h3>
+    <p class="desc">All APIs below have generous free tiers. Save your keys — they're stored locally in your browser (never sent anywhere else).</p>
+
+    <div class="api-block">
+      <div class="api-block-title">
+        <h4>Google Gemini AI</h4>
+        <span class="free-pill">FREE · Unlimited</span>
+      </div>
+      <p>Powers contact discovery and outreach generation. Completely free with no monthly limit.<br>
+        👉 Get key: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a>
+      </p>
+      <input type="password" id="key-gemini" placeholder="AIza...">
+    </div>
+
+    <div class="api-block">
+      <div class="api-block-title">
+        <h4>Hunter.io</h4>
+        <span class="free-pill">FREE · 25/month</span>
+      </div>
+      <p>Finds and verifies professional email addresses from name + company domain. 25 free searches per month, resets monthly.<br>
+        👉 Get key: <a href="https://hunter.io/users/sign_up" target="_blank">hunter.io/users/sign_up</a> → Dashboard → API
+      </p>
+      <input type="password" id="key-hunter" placeholder="xxxxxxxxxxxxxxxx...">
+    </div>
+
+    <div class="api-block">
+      <div class="api-block-title">
+        <h4>Apollo.io</h4>
+        <span class="free-pill">FREE · 50/month</span>
+      </div>
+      <p>Real B2B contact database — finds HR/TA people by company, title, and location. 50 free exports per month.<br>
+        👉 Get key: <a href="https://developer.apollo.io" target="_blank">developer.apollo.io</a> → Settings → API Keys
+      </p>
+      <input type="password" id="key-apollo" placeholder="your_apollo_api_key...">
+    </div>
+
+    <div class="api-block" style="border-color: rgba(34,197,94,.2)">
+      <div class="api-block-title">
+        <h4>Your Profile (for outreach messages)</h4>
+        <span class="free-pill">LOCAL ONLY</span>
+      </div>
+      <p>Used to auto-generate personalized outreach messages for each contact.</p>
+      <label>Your Name</label>
+      <input type="text" id="p-name" placeholder="Gunachanthiran K" style="margin-bottom:8px">
+      <label>Your Email</label>
+      <input type="email" id="p-email" placeholder="gunachanthiran2486@gmail.com" style="margin-bottom:8px">
+      <label>LinkedIn URL</label>
+      <input type="text" id="p-linkedin" placeholder="linkedin.com/in/gunachanthiran-k-a89747246" style="margin-bottom:8px">
+      <label>GitHub URL</label>
+      <input type="text" id="p-github" placeholder="github.com/Gunachanthiran" style="margin-bottom:0">
+    </div>
+
+    <button class="save-keys" onclick="saveKeys()">💾 Save All Keys Locally</button>
+    <div style="text-align:center;margin-top:10px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Keys saved to localStorage · never transmitted</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────
+let contacts = [];
+let activeFilter = 'all';
+let quota = { gemini: 0, hunter: 0, apollo: 0 };
+const HUNTER_LIMIT = 25;
+const APOLLO_LIMIT = 50;
+
+// ── INIT ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadKeys();
+  updateApiStatus();
+  loadQuota();
+});
+
+function loadKeys() {
+  const keys = ['gemini','hunter','apollo'];
+  keys.forEach(k => {
+    const v = localStorage.getItem('rf_key_' + k);
+    if(v) document.getElementById('key-' + k).value = v;
+  });
+  const profile = ['name','email','linkedin','github'];
+  profile.forEach(k => {
+    const v = localStorage.getItem('rf_p_' + k);
+    if(v) document.getElementById('p-' + k).value = v;
+  });
+  // Prefill profile defaults
+  if(!localStorage.getItem('rf_p_name')) document.getElementById('p-name').value = 'Gunachanthiran K';
+  if(!localStorage.getItem('rf_p_email')) document.getElementById('p-email').value = 'gunachanthiran2486@gmail.com';
+  if(!localStorage.getItem('rf_p_linkedin')) document.getElementById('p-linkedin').value = 'linkedin.com/in/gunachanthiran-k-a89747246';
+  if(!localStorage.getItem('rf_p_github')) document.getElementById('p-github').value = 'github.com/Gunachanthiran';
+}
+
+function saveKeys() {
+  ['gemini','hunter','apollo'].forEach(k => {
+    const v = document.getElementById('key-' + k).value.trim();
+    if(v) localStorage.setItem('rf_key_' + k, v);
+  });
+  ['name','email','linkedin','github'].forEach(k => {
+    const v = document.getElementById('p-' + k).value.trim();
+    if(v) localStorage.setItem('rf_p_' + k, v);
+  });
+  updateApiStatus();
+  closeModal('apiModal');
+  log('API keys saved to local storage', 'success');
+}
+
+function getKey(k) { return localStorage.getItem('rf_key_' + k) || document.getElementById('key-'+k)?.value?.trim() || ''; }
+function getProfile(k) { return localStorage.getItem('rf_p_' + k) || document.getElementById('p-'+k)?.value?.trim() || ''; }
+
+function updateApiStatus() {
+  const cfg = {
+    gemini: { has: !!getKey('gemini'), label: getKey('gemini') ? 'connected' : 'not set' },
+    hunter: { has: !!getKey('hunter'), label: getKey('hunter') ? 'connected' : 'not set' },
+    apollo: { has: !!getKey('apollo'), label: getKey('apollo') ? 'connected' : 'not set' },
+  };
+  Object.entries(cfg).forEach(([k,v]) => {
+    document.getElementById('dot-'+k).className = 'api-dot ' + (v.has ? 'ok' : 'off');
+    document.getElementById('lbl-'+k).textContent = v.label;
+    document.getElementById('lbl-'+k).className = 'api-status ' + (v.has ? 'ok' : 'off');
+  });
+}
+
+function loadQuota() {
+  const month = new Date().toISOString().slice(0,7);
+  const saved = JSON.parse(localStorage.getItem('rf_quota_'+month) || '{"gemini":0,"hunter":0,"apollo":0}');
+  quota = saved;
+  renderQuota();
+}
+
+function incQuota(k) {
+  const month = new Date().toISOString().slice(0,7);
+  quota[k]++;
+  localStorage.setItem('rf_quota_'+month, JSON.stringify(quota));
+  renderQuota();
+}
+
+function renderQuota() {
+  document.getElementById('q-gemini-val').textContent = `${quota.gemini} / ∞ free`;
+  document.getElementById('q-hunter-val').textContent = `${quota.hunter} / ${HUNTER_LIMIT} free`;
+  document.getElementById('q-apollo-val').textContent  = `${quota.apollo} / ${APOLLO_LIMIT} free`;
+  document.getElementById('q-gemini-bar').style.width = '10%';
+  const hp = Math.min((quota.hunter/HUNTER_LIMIT)*100, 100);
+  document.getElementById('q-hunter-bar').style.width = hp+'%';
+  document.getElementById('q-hunter-bar').className = 'quota-fill ' + (hp>80 ? 'red' : hp>50 ? 'yellow' : 'green');
+  const ap = Math.min((quota.apollo/APOLLO_LIMIT)*100, 100);
+  document.getElementById('q-apollo-bar').style.width = ap+'%';
+  document.getElementById('q-apollo-bar').className = 'quota-fill ' + (ap>80 ? 'red' : ap>50 ? 'yellow' : 'green');
+}
+
+// ── LOGGING ──────────────────────────────────────
+function log(msg, type='info') {
+  const box = document.getElementById('logBox');
+  box.classList.add('active');
+  const d = new Date();
+  const ts = [d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>n.toString().padStart(2,'0')).join(':');
+  const div = document.createElement('div');
+  div.className = 'log-line ' + type;
+  div.innerHTML = `<span class="log-ts">${ts}</span><span class="log-msg">${msg}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── EMAIL PATTERN ENGINE ─────────────────────────
+function emailPatterns(first, last, domain) {
+  const f = first.toLowerCase().replace(/[^a-z]/g,'');
+  const l = last.toLowerCase().replace(/[^a-z]/g,'');
+  if(!f || !l || !domain) return [];
+  return [
+    `${f}.${l}@${domain}`,
+    `${f}${l}@${domain}`,
+    `${f[0]}${l}@${domain}`,
+    `${f}.${l[0]}@${domain}`,
+    `${f}@${domain}`,
+    `${f}_${l}@${domain}`,
+  ];
+}
+
+// ── HUNTER.IO EMAIL FINDER ───────────────────────
+async function hunterFindEmail(firstName, lastName, domain) {
+  const key = getKey('hunter');
+  if(!key || quota.hunter >= HUNTER_LIMIT) return null;
+  try {
+    const url = `https://api.hunter.io/v2/email-finder?domain=${domain}&first_name=${firstName}&last_name=${lastName}&api_key=${key}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    if(d.data?.email) {
+      incQuota('hunter');
+      return { email: d.data.email, status: 'verified', score: d.data.score };
+    }
+  } catch(e) {}
+  return null;
+}
+
+// ── APOLLO.IO CONTACT SEARCH ─────────────────────
+async function apolloSearch(city, industry, limit = 20) {
+  const key = getKey('apollo');
+  if(!key || quota.apollo >= APOLLO_LIMIT) return [];
+  try {
+    const body = {
+      api_key: key,
+      page: 1,
+      per_page: Math.min(limit, APOLLO_LIMIT - quota.apollo),
+      person_titles: ['talent acquisition', 'recruiter', 'hr manager', 'technical recruiter', 'talent acquisition specialist', 'senior recruiter'],
+      person_locations: [city + ', India'],
+      organization_locations: [city + ', India'],
+      organization_industry_tag_ids: [],
+    };
+    const r = await fetch('https://api.apollo.io/v1/mixed_people/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    incQuota('apollo');
+    return (d.people || []).map(p => ({
+      name: `${p.first_name} ${p.last_name}`,
+      firstName: p.first_name,
+      lastName: p.last_name,
+      title: p.title || 'HR Professional',
+      company: p.organization?.name || '',
+      city: city,
+      domain: p.organization?.primary_domain || '',
+      linkedin: p.linkedin_url ? p.linkedin_url.replace('https://','') : '',
+      email: p.email || '',
+      emailStatus: p.email ? 'apollo' : 'pattern',
+      signal: 'Apollo.io verified',
+      source: 'Apollo.io'
+    }));
+  } catch(e) {
+    log('Apollo search error: ' + e.message, 'error');
+    return [];
+  }
+}
+
+// ── GEMINI AI SEARCH ─────────────────────────────
+async function geminiSearch(role, city, industry, skills) {
+  const key = getKey('gemini');
+  if(!key) return [];
+  const prompt = `You are a recruitment research assistant. Find real HR managers, talent acquisition specialists, and technical recruiters at ${industry} companies in ${city}, India who would be hiring for "${role}" positions.
+
+Return ONLY a valid JSON array (no markdown, no explanation) with this exact structure:
+[
+  {
+    "name": "Full Name",
+    "firstName": "First",
+    "lastName": "Last",
+    "title": "Exact Job Title",
+    "company": "Company Name",
+    "city": "${city}",
+    "domain": "companydomain.com",
+    "linkedin": "linkedin.com/in/username",
+    "signal": "Why they'd be hiring (e.g. QA team expansion, Open SDET roles)",
+    "source": "LinkedIn / Naukri / Company website"
+  }
+]
+
+Focus on these types of companies in ${city}:
+- Large IT companies: TCS, Wipro, Infosys, HCL, Accenture, Capgemini, Cognizant, LTIMindtree, Tech Mahindra, Hexaware, Mphasis
+- Product companies: Zoho, Freshworks, PhonePe, Razorpay, Swiggy, Meesho, CRED
+- MNC tech centers: Oracle, SAP Labs, Bosch, Siemens, IBM, Cisco
+- Mid-size firms actively posting QA/automation roles on Naukri/LinkedIn
+
+Return 15-25 contacts. Only real people with verifiable LinkedIn profiles.`;
+
+  try {
+    log('Calling Gemini AI to discover contacts...', 'info');
+    incQuota('gemini');
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    const d = await r.json();
+    if(d.error) { log('Gemini error: ' + d.error.message, 'error'); return []; }
+    const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const match = text.match(/\[[\s\S]*\]/);
+    if(!match) { log('Gemini returned non-JSON response', 'warn'); return []; }
+    const parsed = JSON.parse(match[0]);
+    log(`Gemini found ${parsed.length} potential contacts`, 'success');
+    return parsed;
+  } catch(e) {
+    log('Gemini error: ' + e.message, 'error');
+    return [];
+  }
+}
+
+// ── DEMO DATA ────────────────────────────────────
+function getDemoData(city, industry) {
+  return [
+    {name:'Priya Menon',firstName:'Priya',lastName:'Menon',title:'Senior Talent Acquisition Partner',company:'Infosys',city:'Bangalore',domain:'infosys.com',linkedin:'linkedin.com/in/priya-menon-infosys',signal:'Hiring QA Automation Engineers',source:'Demo'},
+    {name:'Karthik Rajan',firstName:'Karthik',lastName:'Rajan',title:'HR Manager – Technology Hiring',company:'Wipro',city:'Bangalore',domain:'wipro.com',linkedin:'linkedin.com/in/karthik-rajan-wipro',signal:'Open SDET/QA roles',source:'Demo'},
+    {name:'Ananya Krishnamurthy',firstName:'Ananya',lastName:'Krishnamurthy',title:'Talent Acquisition Lead',company:'Accenture India',city:'Bangalore',domain:'accenture.com',linkedin:'linkedin.com/in/ananya-k-accenture',signal:'Automation tester hiring drive',source:'Demo'},
+    {name:'Suresh Babu',firstName:'Suresh',lastName:'Babu',title:'Technical Recruiter',company:'Capgemini',city:'Chennai',domain:'capgemini.com',linkedin:'linkedin.com/in/suresh-babu-capgemini',signal:'QA team expansion',source:'Demo'},
+    {name:'Divya Lakshmi',firstName:'Divya',lastName:'Lakshmi',title:'Senior HR Executive',company:'HCL Technologies',city:'Chennai',domain:'hcltech.com',linkedin:'linkedin.com/in/divya-lakshmi-hcl',signal:'Testing COE hiring',source:'Demo'},
+    {name:'Venkat Subramaniam',firstName:'Venkat',lastName:'Subramaniam',title:'TA Specialist – QA & Testing',company:'Cognizant',city:'Hyderabad',domain:'cognizant.com',linkedin:'linkedin.com/in/venkat-sub-cognizant',signal:'Mass QA hiring drive',source:'Demo'},
+    {name:'Meena Reddy',firstName:'Meena',lastName:'Reddy',title:'Recruitment Manager',company:'Tech Mahindra',city:'Hyderabad',domain:'techmahindra.com',linkedin:'linkedin.com/in/meena-reddy-techmahindra',signal:'Automation CoE setup',source:'Demo'},
+    {name:'Arun Kumar',firstName:'Arun',lastName:'Kumar',title:'HR Business Partner',company:'Oracle India',city:'Bangalore',domain:'oracle.com',linkedin:'linkedin.com/in/arun-kumar-oracle-india',signal:'QA/SDET openings',source:'Demo'},
+    {name:'Sneha Patel',firstName:'Sneha',lastName:'Patel',title:'Talent Acquisition Specialist',company:'SAP Labs India',city:'Bangalore',domain:'sap.com',linkedin:'linkedin.com/in/sneha-patel-sap',signal:'Hiring test automation engineers',source:'Demo'},
+    {name:'Ramesh Natarajan',firstName:'Ramesh',lastName:'Natarajan',title:'Senior Recruiter – IT',company:'LTIMindtree',city:'Chennai',domain:'ltimindtree.com',linkedin:'linkedin.com/in/ramesh-natarajan-lti',signal:'SDET roles open',source:'Demo'},
+    {name:'Pooja Iyer',firstName:'Pooja',lastName:'Iyer',title:'Technical Recruiter',company:'PhonePe',city:'Bangalore',domain:'phonepe.com',linkedin:'linkedin.com/in/pooja-iyer-phonepe',signal:'QA engineer openings',source:'Demo'},
+    {name:'Balaji Chandrasekaran',firstName:'Balaji',lastName:'Chandrasekaran',title:'TA Manager',company:'Zoho Corporation',city:'Chennai',domain:'zoho.com',linkedin:'linkedin.com/in/balaji-c-zoho',signal:'Automation QA hiring',source:'Demo'},
+    {name:'Deepika Sharma',firstName:'Deepika',lastName:'Sharma',title:'Campus & Lateral Recruiter',company:'Persistent Systems',city:'Hyderabad',domain:'persistent.com',linkedin:'linkedin.com/in/deepika-sharma-persistent',signal:'Hiring automation testers',source:'Demo'},
+    {name:'Nawfal Khan',firstName:'Nawfal',lastName:'Khan',title:'IT Recruiter',company:'Tata Elxsi',city:'Bangalore',domain:'tataelxsi.com',linkedin:'linkedin.com/in/nawfal-khan-tataelxsi',signal:'Test automation hiring',source:'Demo'},
+    {name:'Naveen Raj',firstName:'Naveen',lastName:'Raj',title:'TA Lead – Engineering',company:'Freshworks',city:'Chennai',domain:'freshworks.com',linkedin:'linkedin.com/in/naveen-raj-freshworks',signal:'QA / SDET team hiring',source:'Demo'},
+    {name:'Chandana Murthy',firstName:'Chandana',lastName:'Murthy',title:'HR Recruiter',company:'Bosch Global Software',city:'Bangalore',domain:'bosch.com',linkedin:'linkedin.com/in/chandana-murthy-bosch',signal:'Testing roles open',source:'Demo'},
+    {name:'Vijay Anand',firstName:'Vijay',lastName:'Anand',title:'Technical Talent Acquisition',company:'Siemens Technology',city:'Bangalore',domain:'siemens.com',linkedin:'linkedin.com/in/vijay-anand-siemens',signal:'Automation QA hiring',source:'Demo'},
+    {name:'Lakshmi Priya',firstName:'Lakshmi',lastName:'Priya',title:'HR Executive',company:'Hexaware Technologies',city:'Chennai',domain:'hexaware.com',linkedin:'linkedin.com/in/lakshmipriya-hexaware',signal:'Testing team expansion',source:'Demo'},
+    {name:'Sowmya Raghavan',firstName:'Sowmya',lastName:'Raghavan',title:'TA Specialist',company:'Mphasis',city:'Pune',domain:'mphasis.com',linkedin:'linkedin.com/in/sowmya-r-mphasis',signal:'SDET / QA roles',source:'Demo'},
+    {name:'Harini Balasubramanian',firstName:'Harini',lastName:'Balasubramanian',title:'HR Manager',company:'Razorpay',city:'Bangalore',domain:'razorpay.com',linkedin:'linkedin.com/in/harini-b-razorpay',signal:'QA automation roles open',source:'Demo'},
+  ];
+}
+
+// ── MAIN SEARCH ORCHESTRATOR ─────────────────────
+async function startSearch() {
+  const role = document.getElementById('s-role').value.trim();
+  const city = document.getElementById('s-city').value;
+  const industry = document.getElementById('s-industry').value;
+  const skills = document.getElementById('s-skills').value;
+  const btn = document.getElementById('searchBtn');
+
+  if(!role) { alert('Please enter a job role'); return; }
+
+  // Reset
+  contacts = [];
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin">◌</span> Searching...';
+  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('logBox').classList.add('active');
+  document.getElementById('filterBar').style.display = 'none';
+  document.getElementById('exportBtn').style.display = 'none';
+  document.getElementById('exportTopBtn').style.display = 'none';
+  document.getElementById('main-title').textContent = 'Searching...';
+  document.getElementById('main-sub').textContent = `${role} · ${city} · ${industry}`;
+  document.getElementById('grid').innerHTML = '<div class="empty"><div class="empty-icon shimmer">🔍</div><h3 class="shimmer">Scanning databases...</h3></div>';
+  updateStats();
+
+  const hasGemini = !!getKey('gemini');
+  const hasApollo = !!getKey('apollo');
+
+  // Step 1: Apollo (real contacts)
+  if(hasApollo && quota.apollo < APOLLO_LIMIT) {
+    log('Querying Apollo.io contact database...', 'info');
+    const apolloResults = await apolloSearch(city, industry, 30);
+    for(const c of apolloResults) {
+      if(!c.email && c.firstName && c.domain) {
+        c.emailPatterns = emailPatterns(c.firstName, c.lastName, c.domain);
+        c.email = c.email || c.emailPatterns[0];
+        c.emailStatus = 'pattern';
+      }
+      contacts.push(c);
+      log(`Apollo: ${c.name} @ ${c.company}`, 'success');
+      renderCards(); updateStats();
+    }
+  }
+
+  // Step 2: Gemini AI discovery
+  if(hasGemini) {
+    const geminiResults = await geminiSearch(role, city, industry, skills);
+    for(const c of geminiResults) {
+      if(contacts.find(x=>x.name===c.name && x.company===c.company)) continue;
+      c.emailPatterns = emailPatterns(c.firstName||'', c.lastName||'', c.domain||'');
+      c.email = c.emailPatterns[0] || '';
+      c.emailStatus = 'pattern';
+
+      // Step 3: Hunter.io verify email
+      if(getKey('hunter') && quota.hunter < HUNTER_LIMIT && c.firstName && c.domain) {
+        log(`Hunter.io: verifying ${c.firstName} ${c.lastName} @ ${c.domain}...`, 'info');
+        await sleep(300);
+        const h = await hunterFindEmail(c.firstName, c.lastName, c.domain);
+        if(h) { c.email = h.email; c.emailStatus = 'verified'; c.hunterScore = h.score; }
+      }
+
+      contacts.push(c);
+      log(`Gemini: ${c.name} @ ${c.company}`, 'success');
+      renderCards(); updateStats();
+      await sleep(150);
+    }
+  }
+
+  // Fallback: demo data
+  if(contacts.length < 5) {
+    log('Using demo data — add API keys for live results', 'warn');
+    const demo = getDemoData(city, industry);
+    for(const c of demo) {
+      if(contacts.find(x=>x.name===c.name)) continue;
+      c.emailPatterns = emailPatterns(c.firstName, c.lastName, c.domain);
+      c.email = c.emailPatterns[0] || '';
+      c.emailStatus = 'pattern';
+      contacts.push(c);
+      log(`Demo: ${c.name} @ ${c.company}`, 'info');
+      renderCards(); updateStats();
+      await sleep(120);
+    }
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Find HR Contacts';
+  document.getElementById('filterBar').style.display = 'flex';
+  document.getElementById('exportBtn').style.display = 'inline-block';
+  document.getElementById('exportTopBtn').style.display = 'inline-block';
+  document.getElementById('main-title').textContent = `Found ${contacts.length} Contacts`;
+  document.getElementById('main-sub').textContent = `${role} · ${city} · ${industry}`;
+  log(`Search complete — ${contacts.length} contacts ready`, 'success');
+}
+
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+// ── RENDERING ────────────────────────────────────
+const PALETTE = [
+  ['#0f2a1a','#22c55e'],['#0f1e2a','#38bdf8'],['#2a1a0f','#fbbf24'],
+  ['#2a0f1a','#f472b6'],['#1a0f2a','#a78bfa'],['#0f2a2a','#34d399'],
+];
+function getAvatar(name) { return PALETTE[name.charCodeAt(0) % PALETTE.length]; }
+function initials(n) { return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+
+function cityTag(city) {
+  const c = (city||'').toLowerCase();
+  if(c.includes('bangal')) return ['t-city','BLR'];
+  if(c.includes('chen')) return ['t-city','CHN'];
+  if(c.includes('hydera')) return ['t-city','HYD'];
+  if(c.includes('pune')) return ['t-city','PNQ'];
+  if(c.includes('mumbai')) return ['t-city','BOM'];
+  if(c.includes('delhi')) return ['t-city','DEL'];
+  return ['t-city', (city||'').slice(0,3).toUpperCase()];
+}
+
+function updateStats() {
+  const cos = [...new Set(contacts.map(c=>c.company))];
+  const cits = [...new Set(contacts.map(c=>c.city))];
+  const verified = contacts.filter(c=>c.emailStatus==='verified'||c.emailStatus==='apollo');
+  document.getElementById('s-found').textContent = contacts.length;
+  document.getElementById('s-verified').textContent = verified.length;
+  document.getElementById('s-companies').textContent = cos.length;
+  document.getElementById('s-cities').textContent = cits.length;
+  ['st0','st1','st2','st3'].forEach(id => {
+    document.getElementById(id).classList.toggle('has-data', contacts.length > 0);
+  });
+}
+
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderCards();
+}
+
+function filterContacts() {
+  let list = contacts;
+  if(activeFilter==='bangalore') list = contacts.filter(c=>(c.city||'').toLowerCase().includes('bangal'));
+  else if(activeFilter==='chennai') list = contacts.filter(c=>(c.city||'').toLowerCase().includes('chen'));
+  else if(activeFilter==='hyderabad') list = contacts.filter(c=>(c.city||'').toLowerCase().includes('hydera'));
+  else if(activeFilter==='pune') list = contacts.filter(c=>(c.city||'').toLowerCase().includes('pune'));
+  else if(activeFilter==='verified') list = contacts.filter(c=>c.emailStatus==='verified'||c.emailStatus==='apollo');
+  else if(activeFilter==='linkedin') list = contacts.filter(c=>c.linkedin);
+  return list;
+}
+
+function renderCards() {
+  const grid = document.getElementById('grid');
+  const list = filterContacts();
+  if(!list.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>No contacts match this filter</h3></div>';
+    return;
+  }
+  grid.innerHTML = list.map((c,i) => {
+    const [bg,fg] = getAvatar(c.name||'A');
+    const [cityClass, cityLabel] = cityTag(c.city);
+    const email = c.email || (c.emailPatterns||[])[0] || '';
+    const statusClass = c.emailStatus==='verified' ? 'verified' : c.emailStatus==='apollo' ? 'apollo' : 'pattern';
+    const statusLabel = c.emailStatus==='verified' ? '✓ verified' : c.emailStatus==='apollo' ? '● apollo' : '~ pattern';
+    const globalIdx = contacts.indexOf(c);
+    return `<div class="card">
+      <div class="card-glow" style="background:${fg}"></div>
+      <div class="card-top">
+        <div class="avatar" style="background:${bg};color:${fg}">${initials(c.name||'??')}</div>
+        <div style="flex:1;min-width:0">
+          <div class="c-name">${c.name||'Unknown'}</div>
+          <div class="c-title">${c.title||''}</div>
+          <div class="c-company">${c.company||''}</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag ${cityClass}">${cityLabel}</span>
+        ${c.signal ? `<span class="tag t-signal">${c.signal}</span>` : ''}
+        <span class="tag t-source">${c.source||'AI'}</span>
+      </div>
+      <div class="divider"></div>
+      ${email ? `<div class="info-row">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 4-10 9L2 4"/></svg>
+        <span class="info-val">${email}</span>
+        <span class="vstatus ${statusClass}">${statusLabel}</span>
+      </div>` : ''}
+      ${c.linkedin ? `<div class="info-row">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="opacity:.35"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        <span class="info-val" style="color:var(--blue)">${c.linkedin}</span>
+      </div>` : ''}
+      <div class="card-actions">
+        ${c.linkedin ? `<a class="btn-card bc-li" href="https://${c.linkedin.replace(/^https?:\/\//,'')}" target="_blank">LinkedIn ↗</a>` : ''}
+        ${email ? `<button class="btn-card bc-copy" onclick="copyTxt('${email}',this,'Copied!')">Copy email</button>` : ''}
+        <button class="btn-card bc-msg" onclick="openMsg(${globalIdx})">✉ Message</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── COPY ─────────────────────────────────────────
+function copyTxt(txt, btn, label) {
+  navigator.clipboard.writeText(txt).then(()=>{
+    const orig = btn.textContent;
+    btn.textContent = label;
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(()=>{ btn.textContent = orig; btn.style.color=''; btn.style.borderColor=''; }, 1600);
+  });
+}
+
+// ── MESSAGE GENERATOR ────────────────────────────
+function openMsg(idx) {
+  const c = contacts[idx];
+  if(!c) return;
+  const myName     = getProfile('name') || 'Gunachanthiran K';
+  const myEmail    = getProfile('email') || 'gunachanthiran2486@gmail.com';
+  const myLinkedin = getProfile('linkedin') || 'linkedin.com/in/gunachanthiran-k-a89747246';
+  const myGithub   = getProfile('github') || 'github.com/Gunachanthiran';
+  const role       = document.getElementById('s-role').value;
+  const skills     = document.getElementById('s-skills').value.split(',').slice(0,3).map(s=>s.trim()).join(', ');
+  const exp        = document.getElementById('s-exp').value;
+
+  const msg = `Hi ${(c.name||'').split(' ')[0]},
+
+I came across ${c.company} while researching companies actively hiring in the QA/Testing space in ${c.city}, and I was impressed by the engineering culture there.
+
+I'm ${myName}, a ${exp} experienced SDET currently based in Bangalore. My core expertise is in ${skills} — I've built end-to-end automation frameworks for enterprise clients including Schneider Electric and Keysight Technologies.
+
+I'd love to explore if there are any open ${role} roles at ${c.company} that align with my background. I'm happy to share my resume or connect for a quick 10-minute conversation at your convenience.
+
+GitHub portfolio: https://${myGithub}
+LinkedIn: https://${myLinkedin}
+
+Thank you for your time, ${(c.name||'').split(' ')[0]}!
+
+Best regards,
+${myName}
+📧 ${myEmail}`;
+
+  document.getElementById('msg-sub').textContent = `For ${c.name} at ${c.company}`;
+  document.getElementById('msg-text').value = msg;
+  document.getElementById('msgModal').classList.add('open');
+}
+
+function copyMsg() {
+  const txt = document.getElementById('msg-text').value;
+  const btn = document.querySelector('.modal-copy');
+  navigator.clipboard.writeText(txt).then(()=>{
+    btn.textContent = 'Copied!';
+    setTimeout(()=>{ btn.textContent = 'Copy Message'; }, 1600);
+  });
+}
+
+// ── EXPORT CSV ───────────────────────────────────
+function exportCSV() {
+  if(!contacts.length) return;
+  const headers = ['Name','Title','Company','City','Email','Email Status','LinkedIn','Hiring Signal','Source','Domain','Email Patterns'];
+  const rows = contacts.map(c=>[
+    c.name||'', c.title||'', c.company||'', c.city||'',
+    c.email||'', c.emailStatus||'pattern',
+    c.linkedin||'', c.signal||'', c.source||'', c.domain||'',
+    (c.emailPatterns||[]).join(' | ')
+  ]);
+  const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})),
+    download: `hr_contacts_${document.getElementById('s-city').value}_${Date.now()}.csv`
+  });
+  a.click();
+}
+
+// ── MODALS ───────────────────────────────────────
+function openApiModal() { document.getElementById('apiModal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close on backdrop click
+['msgModal','apiModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){
+    if(e.target===this) closeModal(id);
+  });
+});
+
+// ── CLEAR ────────────────────────────────────────
+function clearAll() {
+  contacts = [];
+  updateStats();
+  document.getElementById('logBox').innerHTML='';
+  document.getElementById('logBox').classList.remove('active');
+  document.getElementById('filterBar').style.display='none';
+  document.getElementById('exportBtn').style.display='none';
+  document.getElementById('exportTopBtn').style.display='none';
+  document.getElementById('main-title').textContent='HR Contact Intelligence';
+  document.getElementById('main-sub').textContent='Configure search parameters → click Find HR Contacts';
+  document.getElementById('grid').innerHTML='<div class="empty"><div class="empty-icon">🎯</div><h3>Ready to find contacts</h3><p>Click Find HR Contacts to begin</p></div>';
+}
+</script>
+</body>
+</html>
